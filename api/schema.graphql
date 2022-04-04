@@ -1,0 +1,178 @@
+scalar GraphQLDate
+
+enum DishCategory {
+    Appetizer,
+    Entree,
+    Soup,
+    Drink
+}
+
+type Dish {
+    _id: ID!
+    id: Int!
+    name: String!
+    category: DishCategory!
+    quantity: Int!
+    price: Int!
+    image_link: String
+    description: String
+}
+
+type User {
+    signedIn: Boolean!
+    givenName: String
+    name: String
+    email: String
+    address: String
+    phone: String
+    # Order numbers that this user have
+    orderNumbers: [Int]
+}
+
+type SubBag{
+    name : String!
+    quantity : Int!
+    price : Int!
+    category : String!
+}
+
+
+type SubOrder{
+    _id: ID!
+    id: Int!
+    created_time: GraphQLDate!
+    dishes: String!
+    email : String!
+    name : String!
+    method : String!
+}
+
+input OrderInputs{
+    dishes: String!
+    email : String!
+    name : String!
+    method : String!
+}
+
+
+type Order {
+    _id: ID!
+    id: Int!
+    created_time: GraphQLDate!
+    # A string date
+    date: String!
+    # Total price of the order
+    price: Float!
+    dishes: [Dish!]!
+    delivery: Boolean!
+    pick_up: Boolean!
+    address: String!
+    contact_name: String!
+    phone: String!
+    card_number: String!
+}
+
+type Card {
+    id: Int!
+    card_number: String!
+    expire_date: GraphQLDate!
+    # Expiration date is not a date actually
+    expiration: String!
+}
+
+input NewDish {
+    name: String!
+    category: String!
+    quantity: Int!
+    price: Int!
+}
+
+
+enum StatusType {
+    New
+    Assigned
+    Fixed
+    Closed
+}
+
+type Issue {
+    _id: ID!
+    id: Int!
+    title: String!
+    status: StatusType!
+    description: String
+    owner: String
+    effort: Int
+    created: GraphQLDate!
+    due: GraphQLDate
+}
+
+type IssueCounts {
+    owner: String!
+    New: Int
+    Assigned: Int
+    Fixed: Int
+    Closed: Int
+}
+
+type IssueListWithPages {
+    issues: [Issue!]!
+    pages: Int
+}
+
+"Toned down Issue, used as ipnuts, without server generated values"
+input IssueInputs {
+    title: String!
+    "Optional, if not supplied it will be set to 'New'"
+    status: StatusType = New
+    description: String
+    owner: String
+    effort: Int
+    due: GraphQLDate
+}
+"""Inputs for issueUpdate: all are optional. Whicheveer is specified will
+be set up to the given value, undefined fieldds will remain unmodified."""
+input IssueUpdateInputs {
+    title: String
+    status: StatusType
+    owner: String
+    effort: Int
+    due: GraphQLDate
+    description: String
+}
+### Top level declarations
+type Query {
+    issueList(
+        status: StatusType
+        effortMin: Int
+        effortMax: Int
+        search: String
+        page: Int = 1
+    ): IssueListWithPages
+    issue(id: Int!): Issue!
+    issueCounts(
+        status: StatusType
+        effortMin: Int
+        effortMax: Int
+    ): [IssueCounts!]!
+
+    about: String!
+    dishList: [Dish!]!
+    shoppingBag: [Dish!]!
+    user: User!
+    orderById(id: Int!): SubOrder!
+    ordersByEmail(email: String!): [SubOrder]!
+    orderNumbers: Int!
+}
+type Mutation {
+    setAboutMessage(message: String!): String
+    issueAdd(issue: IssueInputs!): Issue!
+    issueUpdate(id: Int!, changes: IssueUpdateInputs!): Issue!
+    issueDelete(id: Int!): Boolean!
+    issueRestore(id: Int!): Boolean!
+
+    dishAdd(dish: NewDish!): Dish!
+    dishMinus(dish: NewDish!): Dish!
+
+    orderAdd(SubOrder : OrderInputs!): SubOrder!
+}
