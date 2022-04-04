@@ -2,9 +2,6 @@
 
 Our project is to develop an online ordering website for a restaurant. 
 
-### Deployment on Heroku
-https://hw-restaurant-ui.herokuapp.com
-
 ## Restaurant-app 
 
 Users can read the menu and order food online at this restaurant.
